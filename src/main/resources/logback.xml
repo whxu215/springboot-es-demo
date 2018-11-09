@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+
+  <property name="PROJECT_NAME" value="appskyeye"/>
+
+  <springProfile name="local,jenkins,dev,sit,uat">
+    <logger name="com.netflix" level="INFO"/>
+    <logger name="org.hibernate" level="DEBUG"/>
+    <logger name="org.apache.kafka" level="TRACE"/>
+    <logger name="com.yiguan" level="DEBUG"/>
+    <logger name="org.apache.kafka" level="INFO"/>
+    <logger name="org.apache.http.wire" level="INFO"/>
+    <logger name="org.springframework.web.filter.CommonsRequestLoggingFilter">
+      <level value="DEBUG" />
+    </logger>
+  </springProfile>
+
+  <springProfile name="prod">
+    <logger name="com.netflix" level="INFO"/>
+    <logger name="org.hibernate" level="INFO"/>
+    <logger name="com.yiguan" level="INFO"/>
+    <logger name="org.apache.kafka" level="INFO"/>
+    <logger name="org.springframework.web.filter.CommonsRequestLoggingFilter">
+      <level value="DEBUG" />
+    </logger>
+  </springProfile>
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger %L: %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <!-- Simple file output -->
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!-- encoder defaults to ch.qos.logback.classic.encoder.PatternLayoutEncoder -->
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+    </encoder>
+
+    <!--<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">-->
+      <!-- rollover daily -->
+      <!--<springProfile name="local,jenkins">-->
+        <!--<fileNamePattern>logs/${PROJECT_NAME}.yiguanjinrong.yg.log.%d{yyyy-MM-dd}-%i</fileNamePattern>-->
+      <!--</springProfile>-->
+      <!--<springProfile name="dev,prod,sit,uat">-->
+        <!--<fileNamePattern>/data1/logs/${PROJECT_NAME}/${PROJECT_NAME}.yiguanjinrong.yg.log.%d{yyyy-MM-dd}-%i</fileNamePattern>-->
+      <!--</springProfile>-->
+      <!--<timeBasedFileNamingAndTriggeringPolicy-->
+              <!--class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">-->
+        <!--&lt;!&ndash; or whenever the file size reaches 64 MB &ndash;&gt;-->
+        <!--<maxFileSize>64 MB</maxFileSize>-->
+      <!--</timeBasedFileNamingAndTriggeringPolicy>-->
+    <!--</rollingPolicy>-->
+
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <!-- daily rollover -->
+      <fileNamePattern>logs/${PROJECT_NAME}.%d{yyyyMMdd}.log.zip</fileNamePattern>
+
+      <!-- keep 30 days' worth of history -->
+      <maxHistory>30</maxHistory>
+    </rollingPolicy>
+
+    <!-- Safely log to the same file from multiple JVMs. Degrades performance! -->
+    <!--<prudent>true</prudent> -->
+  </appender>
+
+  <springProfile name="prod">
+    <root level="DEBUG">
+      <appender-ref ref="FILE"/>
+    </root>
+  </springProfile>
+  <springProfile name="local,jenkins,dev,sit,uat">
+    <root level="DEBUG">
+      <appender-ref ref="FILE"/>
+      <appender-ref ref="STDOUT"/>
+    </root>
+  </springProfile>
+
+</configuration>
